@@ -27,7 +27,7 @@ the following lines to your composer.json:
 
     {
         "require": {
-            "vmwarephp/vmwarephp": "dev-master"
+            "titanium-iridium/vmwarephp": "dev-master"
         }
     }
     
@@ -35,7 +35,7 @@ the following lines to your composer.json:
 
 You can clone the latest development branch from its github repository:
 
-    git clone git://github.com/vadimcomanescu/vmwarephp.git
+    git clone git://github.com/titanium-iridium/vmwarephp.git
 
 Usage
 --------
@@ -45,7 +45,7 @@ the operations are performed is represented by a \Vmwarephp\Vhost object. A Vhos
 obtain server side ManagedObjects. The following example describes a way to collect all virtual machines from a ESX/vCenter
 with their config status prefetched:
     
-    $vhost = new \Vmwarephp\Vhost('vcenter:443', 'Admin', 'password');
+    $vhost = new \Vmwarephp\Vhost(['host' => 'vcenter:443', 'username' => 'root', 'password' => 'the_secret']);
     $virtualMachines = $vhost->findAllManagedObjects('VirtualMachine', array('configStatus'));
 
 For collecting all virtual machines with all their properties pre-fetched, which normally is a very expensive operation
@@ -56,12 +56,12 @@ considering that a lot of objects need to be traversed you can do it in the foll
 You can find a given object using its server side id. For example finding a datastore with id datastore-182 with none of
 its properties prefetched:
 
-    $vhost = new \Vmwarephp\Vhost('vcenter:443', 'Admin', 'password');
+    $vhost = new \Vmwarephp\Vhost(['host' => 'vcenter:443', 'username' => 'root', 'password' => 'the_secret']);
     $datastore = $vhost->findOneManagedObject('Datastore', 'datastore-182', array());
 
 A managed object can also be found by name:
 
-	$vhost = new \Vmwarephp\Vhost('vcenter:443', 'Admin', 'password');
+	$vhost = new \Vmwarephp\Vhost(['host' => 'vcenter:443', 'username' => 'root', 'password' => 'the_secret']);
     $datastore = $vhost->findManagedObjectByName('VirtualMachine', 'myvmname', array('configStatus'));
     
 Managed objects can be a generic managed object represented by \Vmwarephp\ManagedObject or a user defined extension of a
@@ -69,7 +69,7 @@ managed object defined in Extensions directory. Each managed object depending on
 'Datastore', etc.) can execute any of methods defined by the vSphere api on that reference type. For example taking a 
 virtual machine snapshot can be as easy as:
 
-    $vhost = new \Vmwarephp\Vhost('vcenter:443', 'Admin', 'password');
+    $vhost = new \Vmwarephp\Vhost(['host' => 'vcenter:443', 'username' => 'root', 'password' => 'the_secret']);
     $virtualMachine = $vhost->findOneManagedObject('VirtualMachine', 'vm-192', array());
     $snapshotTask = $virtualMachine->CreateSnapshot_Task(array('name' => 'snapshot_name', 'memory' => false, 'quiesce' => false));
     
