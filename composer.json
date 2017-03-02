@@ -1,9 +1,9 @@
 {
-	"name":"vmwarephp/vmwarephp",
+	"name":"titanium-iridium/vmwarephp",
 	"type":"library",
 	"description":"Vmware vSphere bindings for PHP",
 	"keywords":["vmware", "php", "vsphere", "bindings", "vsphere sdk", "vmware php"],
-	"homepage":"https://github.com/vadimcomanescu/vmwarephp",
+	"homepage":"https://github.com/titanium-iridium/vmwarephp",
 	"license":"BSD-3-Clause",
 	"authors":[
 		{
@@ -18,7 +18,7 @@
 	"require-dev":{
 		"mockery/mockery":"dev-master"
 	},
-        "autoload": {
-            "psr-0": { "Vmwarephp": "library" }
-        }
+	"autoload": {
+		"psr-0": { "Vmwarephp": "library" }
+	}
 }
