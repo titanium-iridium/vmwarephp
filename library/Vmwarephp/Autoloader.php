@@ -48,7 +48,7 @@ class Autoloader {
 	public function loadClass($className) {
 		if (strpos($className, $this->namespace) === false) {
 			require_once 'TypeDefinitions.inc';
-			return;
+			return true;
 		}
 		if (is_null($this->namespace) || $this->namespace . $this->namespaceSeparator === substr($className, 0, strlen($this->namespace . $this->namespaceSeparator))) {
 			$fileDirectoryPath = '';

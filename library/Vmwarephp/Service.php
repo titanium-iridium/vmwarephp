@@ -3,6 +3,7 @@
 namespace Vmwarephp;
 
 class Service {
+
 	private $soapClient;
 	private $vhost;
 	private $typeConverter;
@@ -12,13 +13,15 @@ class Service {
 
 	function __construct(Vhost $vhost, \Vmwarephp\Factory\SoapClient $soapClientFactory = null) {
 		$this->vhost = $vhost;
-		$this->clientFactory = $soapClientFactory ? : new \Vmwarephp\Factory\SoapClient();
+		$this->clientFactory = $soapClientFactory ?: new \Vmwarephp\Factory\SoapClient();
 		$this->soapClient = $this->clientFactory->make($this->vhost);
 		$this->typeConverter = new TypeConverter($this);
 	}
 
 	function __call($method, $arguments) {
-		if ($this->isMethodAPropertyRetrieval($method)) return $this->getQueriedProperty($method, $arguments);
+		if ($this->isMethodAPropertyRetrieval($method)) {
+			return $this->getQueriedProperty($method, $arguments);
+		}
 		$managedObject = $arguments[0];
 		$actionArguments = isset($arguments[1]) ? $arguments[1] : array();
 		return $this->makeSoapCall($method, \Vmwarephp\Factory\SoapMessage::makeUsingManagedObject($managedObject, $actionArguments));
@@ -53,15 +56,21 @@ class Service {
 	}
 
 	function getServiceContent() {
-		if (!$this->serviceContent)
-			$this->serviceContent = $this->makeSoapCall('RetrieveServiceContent', \Vmwarephp\Factory\SoapMessage::makeForServiceInstance());
+		if (!$this->serviceContent) {
+			$this->serviceContent =
+				$this->makeSoapCall('RetrieveServiceContent', \Vmwarephp\Factory\SoapMessage::makeForServiceInstance());
+		}
 		return $this->serviceContent;
 	}
 
 	protected function convertResponse($response) {
 		$responseVars = get_object_vars($response);
-		if (isset($response->returnval) || (array_key_exists('returnval', $responseVars) && is_null($responseVars['returnval'])))
+		if (isset($response->returnval)
+			|| (array_key_exists('returnval', $responseVars)
+				&& is_null($responseVars['returnval']))
+		) {
 			return $this->typeConverter->convert($response->returnval);
+		}
 		return $this->typeConverter->convert($response);
 	}
 
@@ -80,11 +89,15 @@ class Service {
 	private function getQueriedProperty($method, $arguments) {
 		$propertyToRetrieve = $this->generateNameForThePropertyToRetrieve($method);
 		$content = $this->getServiceContent();
-		if (isset($content->$propertyToRetrieve)) return $content->$propertyToRetrieve;
+		if (isset($content->$propertyToRetrieve)) {
+			return $content->$propertyToRetrieve;
+		}
 		$managedObject = $arguments[0];
 		$foundManagedObject = $this->findOneManagedObject($managedObject->getReferenceType(),
 			$managedObject->getReferenceId(), array($propertyToRetrieve));
-		if (!isset($foundManagedObject->$propertyToRetrieve)) return null;
+		if (!isset($foundManagedObject->$propertyToRetrieve)) {
+			return null;
+		}
 		return $foundManagedObject->$propertyToRetrieve;
 	}
 

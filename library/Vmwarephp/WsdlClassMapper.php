@@ -6,6 +6,8 @@ class WsdlClassMapper {
 	private $useClassMapCaching = true;
 	private $classMapCacheFile;
 
+	protected static $cacheDirectory = null;
+
 	function __construct($classDefinitionsFilePath = null) {
 		$this->classDefinitionsFilePath = $classDefinitionsFilePath ? : dirname(__FILE__) . '/TypeDefinitions.inc';
 	}
@@ -71,8 +73,20 @@ class WsdlClassMapper {
 
 	private function getClassMapCacheFile() {
 		if (!$this->classMapCacheFile) {
+			// TODO
+//			$this->classMapCacheFile = self::$cacheDirectory . '/.wsdl_class_map.cache';
 			$this->classMapCacheFile = __DIR__ . '/' . '.wsdl_class_map.cache';
 		}
 		return $this->classMapCacheFile;
+	}
+
+	public static function setCacheDirectory($path) {
+		if (!file_exists($path)) {
+			mkdir($path, 0777, true);
+		}
+		if (is_readable($path)) {
+			throw new \Exception('WsdlClassMapper cache directory is not accessible: ' . $path);
+		}
+		self::$cacheDirectory = realpath($path);
 	}
 }

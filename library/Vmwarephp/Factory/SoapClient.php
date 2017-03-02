@@ -1,27 +1,40 @@
 <?php
 namespace Vmwarephp\Factory;
+
 use \Vmwarephp\Exception as Ex;
+use Vmwarephp\WsdlClassMapper;
+use Vmwarephp\Vhost;
 
 class SoapClient {
+
 	private $wsdlClassMapper;
 	private $wsdlFilePath;
 
-	function __construct(\Vmwarephp\WsdlClassMapper $mapper = null, $wsdlFilePath = null) {
-		$this->wsdlClassMapper = $mapper ? : new \Vmwarephp\WsdlClassMapper;
-		$this->wsdlFilePath = $wsdlFilePath ? : $this->getWsdlFilePath();
+	function __construct(WsdlClassMapper $mapper = null, $wsdlFilePath = null) {
+		$this->wsdlClassMapper = $mapper ?: new WsdlClassMapper;
+		$this->wsdlFilePath = $wsdlFilePath ?: $this->getWsdlFilePath();
 	}
 
-	function make(\Vmwarephp\Vhost $vhost, $useExceptions = 1, $trace = 1) {
-		$options = array(
-			'trace' => $trace,
-			'location' => $this->makeRequestsLocation($vhost),
-			'exceptions' => $useExceptions,
+	function make(Vhost $vhost) {
+		$vhostOptions = $vhost->getOptions();
+
+		$options = array_merge([
+			'location' => $this->makeRequestsLocation($vhostOptions['host']),
+			'trace' => true,
+			'exceptions' => true,
 			'connection_timeout' => 10,
 			'classmap' => $this->wsdlClassMapper->getClassMap(),
-			'features' => SOAP_SINGLE_ELEMENT_ARRAYS + SOAP_USE_XSI_ARRAY_TYPE
-		);
+			'features' => SOAP_SINGLE_ELEMENT_ARRAYS + SOAP_USE_XSI_ARRAY_TYPE,
+		], $vhostOptions['soap']);
+
+		if (!empty($options['stream_context'])) {
+			$options['stream_context'] = stream_context_create($options['stream_context']);
+		}
+
 		$soapClient = $this->makeDefaultSoapClient($this->wsdlFilePath, $options);
-		if (!$soapClient) throw new Ex\CannotCreateSoapClient();
+		if (!$soapClient) {
+			throw new Ex\CannotCreateSoapClient();
+		}
 		return $soapClient;
 	}
 
@@ -29,8 +42,8 @@ class SoapClient {
 		return $this->wsdlClassMapper->getClassMap();
 	}
 
-	protected function makeRequestsLocation(\Vmwarephp\Vhost $vhost) {
-		return 'https://' . $vhost->host . '/sdk';
+	protected function makeRequestsLocation($host) {
+		return 'https://' . $host . '/sdk';
 	}
 
 	protected function makeDefaultSoapClient($wsdl, array $options) {
